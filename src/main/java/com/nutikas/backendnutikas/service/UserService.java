@@ -1,7 +1,9 @@
 package com.nutikas.backendnutikas.service;
 
 import com.nutikas.backendnutikas.auth.UserDetailsService;
+import com.nutikas.backendnutikas.dto.QuestionSetDTO;
 import com.nutikas.backendnutikas.dto.UserResponse;
+import com.nutikas.backendnutikas.mapper.QuestionSetMapper;
 import com.nutikas.backendnutikas.mapper.UserMapper;
 import com.nutikas.backendnutikas.model.RoleModel;
 import com.nutikas.backendnutikas.model.UserModel;
@@ -36,13 +38,13 @@ public class UserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         var user = userRepository.findByUsername(username);
-        if (user == null) {
+        if (user.isEmpty()) {
             log.error("User with username {} not found", username);
             throw new UsernameNotFoundException("User not found");
         }
         Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        user.getRoles().forEach(role -> authorities.add(new SimpleGrantedAuthority(role.getName())));
-        return new User(user.getUsername(), user.getPassword(), authorities);
+        user.get().getRoles().forEach(role -> authorities.add(new SimpleGrantedAuthority(role.getName())));
+        return new User(user.get().getUsername(), user.get().getPassword(), authorities);
     }
 
     public UserModel saveUser(UserModel user) {
@@ -56,8 +58,10 @@ public class UserService implements UserDetailsService {
 
     public void addRoleToUser(String username, String roleName) {
         var user = userRepository.findByUsername(username);
-        var role = roleRepository.findByName(roleName);
-        user.getRoles().add(role);
+        if (user.isPresent()) {
+            var role = roleRepository.findByName(roleName);
+            user.get().getRoles().add(role);
+        }
     }
 
     public UserResponse getUser(Long id) {
@@ -69,7 +73,20 @@ public class UserService implements UserDetailsService {
     }
 
     public UserResponse getUser(String username) {
-        return UserMapper.INSTANCE.dtoToResponse(UserMapper.INSTANCE.modelToDTO(userRepository.findByUsername(username)));
+        return UserMapper.INSTANCE.dtoToResponse(UserMapper.INSTANCE.modelToDTO(
+                userRepository.findByUsername(username).orElseThrow(
+                        () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "USER_NOT_FOUND")))
+        );
+    }
+
+    public void addQuiestionSetToUser(String username, QuestionSetDTO questionSet) {
+
+        var user = userRepository.findByUsername(username);
+
+        if (user.isPresent()) {
+            user.get().getQuestionSets().add(QuestionSetMapper.INSTANCE.dtoToModel(questionSet));
+            userRepository.save(user.get());
+        }
     }
 
     public List<UserModel> getUsers() {

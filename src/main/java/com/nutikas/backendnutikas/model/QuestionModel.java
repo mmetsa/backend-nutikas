@@ -27,6 +27,6 @@ public class QuestionModel {
     @Column(nullable = false)
     private AnswerType answerType;
 
-    @ManyToMany(targetEntity = AnswerModel.class)
+    @ManyToMany(targetEntity = AnswerModel.class, cascade = CascadeType.ALL)
     private List<AnswerModel> answers;
 }

@@ -15,13 +15,15 @@ public class QuestionSetService {
    private final QuestionSetRepository questionSetRepository;
 
     public QuestionSetResponse createQuestionSet(String username, QuestionSetRequest questionSet) {
-        var user = userService.getUser(username);
-
         var questionSetDTO = QuestionSetMapper.INSTANCE.requestToDTO(questionSet);
 
         var questionSetModel = QuestionSetMapper.INSTANCE.dtoToModel(questionSetDTO);
 
-        return QuestionSetMapper.INSTANCE.dtoToResponse(QuestionSetMapper.INSTANCE.modelToDTO(questionSetRepository.save(questionSetModel)));
+        questionSetDTO = QuestionSetMapper.INSTANCE.modelToDTO(questionSetRepository.save(questionSetModel));
+
+        userService.addQuiestionSetToUser(username, questionSetDTO);
+
+        return QuestionSetMapper.INSTANCE.dtoToResponse(questionSetDTO);
     }
 
 }
