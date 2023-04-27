@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  backend-games-api:
+    container_name: backend-games-api
+    build: .
+    environment:
+      - "SPRING_PROFILES_ACTIVE=dev"
+      - "SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/nutikas"
+      - "SPRING_DATASOURCE_USERNAME=nutikas"
+      - "SPRING_DATASOURCE_PASSWORD=nutikas"
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+  postgres:
+    image: postgres:14.2
+    container_name: backend-games-api-postgres
+    ports:
+      - "5434:5432"
+    environment:
+      - POSTGRES_DB=nutikas
+      - POSTGRES_USER=nutikas
+      - POSTGRES_PASSWORD=nutikas
