@@ -9,8 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController
@@ -22,8 +24,9 @@ public class ClassController {
     private final ClassService classService;
 
     @GetMapping("/list")
-    public ResponseEntity<List<ClassResponse>> getUserClasses(@AuthenticationPrincipal UserDetailsImpl user) {
-        var classes = classService.getUserClasses(user.getId());
+    public ResponseEntity<List<ClassResponse>> getUserClasses(@AuthenticationPrincipal UserDetailsImpl user,
+                                                              @RequestParam @NotNull Long schoolId) {
+        var classes = classService.getUserClasses(user.getId(), schoolId);
         return ResponseEntity.ok(classes);
     }
 }

@@ -1,4 +1,4 @@
-package ee.nutikas.games.api.game.engine.Level;
+package ee.nutikas.games.engine.level;
 
 import org.springframework.stereotype.Service;
 

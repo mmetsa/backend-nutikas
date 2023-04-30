@@ -1,6 +1,5 @@
 package ee.nutikas.games.api.school.mapper;
 
-import ee.nutikas.games.api.school.dto.SchoolDTO;
 import ee.nutikas.games.api.school.dto.SchoolRequest;
 import ee.nutikas.games.api.school.dto.SchoolResponse;
 import ee.nutikas.games.api.school.model.SchoolModel;
@@ -16,14 +15,9 @@ public interface SchoolMapper {
 
     SchoolMapper MAPPER = Mappers.getMapper(SchoolMapper.class);
 
-    SchoolDTO toDTO(SchoolRequest request);
-
-    SchoolDTO toDTO(SchoolModel model);
-
-    SchoolResponse toResponse(SchoolDTO dto);
-
     SchoolResponse toResponse(SchoolModel model);
     List<SchoolResponse> toResponseList(List<SchoolModel> models);
 
-    SchoolModel toModel(SchoolDTO dto);
+    @Mapping(source = "schoolEmail", target = "email")
+    SchoolModel toModel(SchoolRequest request);
 }

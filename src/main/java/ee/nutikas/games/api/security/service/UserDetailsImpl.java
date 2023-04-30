@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
@@ -34,16 +33,15 @@ public class UserDetailsImpl implements UserDetails {
     private Long coins;
     private Long experience;
 
-
     @JsonIgnore
     private String password;
 
-    private Collection<? extends GrantedAuthority> authorities;
+    private Collection<CustomGrantedAuthority> authorities;
 
     public static UserDetailsImpl build(UserModel user) {
         List<CustomGrantedAuthority> authorities = user.getUserRoles()
                 .stream()
-                .map(role -> new CustomGrantedAuthority(role.getRole().getName().name(), role.getSchool().getId(), user.getId())).toList();
+                .map(role -> new CustomGrantedAuthority(role.getRole().getName().name(), role.getSchool().getId(), user.getId(), role.getDisabled())).toList();
         return new UserDetailsImpl(user.getId(), user.getNickname(), user.getEmail(), user.getFirstName(),
                 user.getLastName(), user.getBirthDate(), user.getCoins(), user.getExperience(), user.getPasswordHash(),
                 authorities);
@@ -81,6 +79,6 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return authorities.stream().anyMatch(a -> !a.getCustomAuthority().getDisabled());
     }
 }
