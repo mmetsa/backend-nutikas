@@ -2,7 +2,7 @@ version: '3'
 
 services:
   backend-games-api:
-    container_name: backend-games-api
+    container_name: backend-nutikas
     build: .
     environment:
       - "SPRING_PROFILES_ACTIVE=dev"
@@ -12,7 +12,7 @@ services:
     depends_on:
       - postgres
     ports:
-      - "8080:8080"
+      - "8980:8080"
   postgres:
     image: postgres:14.2
     container_name: backend-games-api-postgres
@@ -22,3 +22,8 @@ services:
       - POSTGRES_DB=nutikas
       - POSTGRES_USER=nutikas
       - POSTGRES_PASSWORD=nutikas
+  redis:
+    image: "redis:latest"
+    container_name: backend-games-api-redis
+    ports:
+      - "6379:6379"
