@@ -1,4 +1,4 @@
-package ee.nutikas.games.engine.memorycards.dto;
+package ee.nutikas.games.api.game.memorycards;
 
 import java.util.Arrays;
 

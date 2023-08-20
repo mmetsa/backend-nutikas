@@ -3,7 +3,7 @@ package ee.nutikas.games.api.security.jwt;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ee.nutikas.games.api.auth.dto.UserPoints;
-import ee.nutikas.games.engine.level.LevelSystem;
+import ee.nutikas.games.api.auth.service.LevelSystem;
 import ee.nutikas.games.api.security.service.UserDetailsImpl;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;

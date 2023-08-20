@@ -7,12 +7,11 @@ import ee.nutikas.games.api.game.repository.GameRepository;
 import ee.nutikas.games.api.questionset.service.QuestionSetService;
 import ee.nutikas.games.api.security.service.UserDetailsImpl;
 import ee.nutikas.games.api.user.service.UserService;
-import ee.nutikas.games.engine.GameEngine;
-import ee.nutikas.games.engine.memorycards.MemoryCardGameHandler;
-import ee.nutikas.games.engine.memorycards.dto.Answer;
-import ee.nutikas.games.engine.memorycards.dto.CreateMemoryGameRequest;
-import ee.nutikas.games.engine.memorycards.dto.GameQuestion;
-import ee.nutikas.games.engine.memorycards.dto.GameType;
+import ee.nutikas.games.api.game.memorycards.Answer;
+import ee.nutikas.games.api.game.memorycards.CreateMemoryGameRequest;
+import ee.nutikas.games.api.game.memorycards.GameQuestion;
+import ee.nutikas.games.api.game.memorycards.GameType;
+import ee.nutikas.games.rabbitmq.publisher.RabbitMQProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -31,7 +30,7 @@ public class GameService {
     private final GameRepository repository;
     private final QuestionSetService questionSetService;
     private final UserService userService;
-    private final GameEngine gameEngine;
+    private final RabbitMQProducer rabbitMQProducer;
 
     public void createGame(GameRequest gameRequest, Long userId) {
         var model = GameMapper.INSTANCE.toModel(gameRequest);
@@ -64,6 +63,7 @@ public class GameService {
 
         // TODO: This should be generic somehow, not MEMORY_MATCH specific
         var request = new CreateMemoryGameRequest();
+        request.setId(UUID.randomUUID());
         request.setGameType(GameType.MEMORY_MATCH.name());
         request.setTime(game.getGameTime());
         request.setPlayerIds(List.of(user.getId()));
@@ -86,7 +86,8 @@ public class GameService {
         });
         request.setQuestions(questions);
 
-        return gameEngine.joinGame(request);
+        rabbitMQProducer.createGame(request);
+        return request.getId();
     }
 
 }

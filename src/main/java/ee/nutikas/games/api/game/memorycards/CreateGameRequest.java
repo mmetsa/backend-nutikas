@@ -1,11 +1,11 @@
-package ee.nutikas.games.engine;
-
-import ee.nutikas.games.engine.memorycards.dto.GameQuestion;
+package ee.nutikas.games.api.game.memorycards;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface CreateGameRequest {
 
+    UUID getId();
     Integer getTime();
 
     String getGameType();
