@@ -7,6 +7,7 @@ import ee.nutikas.games.api.auth.dto.RefreshRequest;
 import ee.nutikas.games.api.auth.dto.RegisterRequest;
 import ee.nutikas.games.api.auth.service.AuthService;
 import ee.nutikas.games.api.auth.repository.UserRepository;
+import ee.nutikas.games.api.auth.service.LevelSystem;
 import ee.nutikas.games.api.security.annotation.PublicEndpoint;
 import ee.nutikas.games.api.security.jwt.JwtUtils;
 import ee.nutikas.games.api.security.service.UserDetailsImpl;
@@ -38,6 +39,7 @@ public class AuthController {
     private final UserRepository userRepository;
     private final AuthService authService;
     private final JwtUtils jwtUtils;
+    private final LevelSystem levelSystem;
 
     @PublicEndpoint
     @PostMapping("/login")
@@ -55,8 +57,14 @@ public class AuthController {
         if (!userDetails.isEnabled()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account is disabled");
         }
+        var currentLevel =
+                levelSystem.getLevelForExperience(userDetails.getExperience());
 
-        return ResponseEntity.ok(new JwtResponse(tokens[0], tokens[1], roles));
+        return ResponseEntity.ok(new JwtResponse(tokens[0], tokens[1],
+                roles, userDetails.getCoins(), userDetails.getExperience(),
+                currentLevel,
+                levelSystem.getExperienceRequiredForNextLevel(currentLevel),
+                levelSystem.getExperienceRequiredForNextLevel(currentLevel - 1)));
     }
 
     @PublicEndpoint
@@ -68,9 +76,15 @@ public class AuthController {
 
         if (jwtUtils.validateJwtToken(refreshRequest.getRefreshToken())) {
             var tokens = jwtUtils.generateJwtTokens(auth);
+
+            var currentLevel =
+                    levelSystem.getLevelForExperience(userDetails.getExperience());
+
             return ResponseEntity.ok(new JwtResponse(tokens[0], tokens[1], userDetails.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
-                    .toList()));
+                    .toList(), userDetails.getCoins(),
+                    userDetails.getExperience(), currentLevel,
+                    levelSystem.getExperienceRequiredForNextLevel(currentLevel), levelSystem.getExperienceRequiredForNextLevel(currentLevel - 1)));
         } else {
             log.info("Invalid refresh token used to refresh JWT");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "INVALID_REFRESH_TOKEN");

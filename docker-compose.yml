@@ -2,17 +2,21 @@ version: '3'
 
 services:
   backend-games-api:
-    container_name: backend-games-api
+    container_name: backend-nutikas
     build: .
     environment:
       - "SPRING_PROFILES_ACTIVE=dev"
       - "SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/nutikas"
       - "SPRING_DATASOURCE_USERNAME=nutikas"
       - "SPRING_DATASOURCE_PASSWORD=nutikas"
+      - "SPRING_REDIS_HOST=redis"
     depends_on:
       - postgres
+      - rabbitmq
     ports:
       - "8080:8080"
+    networks:
+      - my-network
   postgres:
     image: postgres:14.2
     container_name: backend-games-api-postgres
@@ -22,3 +26,19 @@ services:
       - POSTGRES_DB=nutikas
       - POSTGRES_USER=nutikas
       - POSTGRES_PASSWORD=nutikas
+    networks:
+      - my-network
+  rabbitmq:
+    image: "rabbitmq:3-management-alpine"
+    container_name: "rabbitmq"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+    networks:
+      - my-network
+networks:
+  my-network:
+    driver: bridge

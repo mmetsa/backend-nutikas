@@ -12,5 +12,9 @@ public class JwtResponse {
     private String accessToken;
     private String refreshToken;
     private List<String> roles;
-
+    private Long coins;
+    private Long experience;
+    private Integer level;
+    private Long experienceForNextLevel;
+    private Long experienceForCurrentLevel;
 }
